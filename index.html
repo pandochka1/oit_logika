@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алгебра логики. Построение таблиц истинности — Информатика</title>
+<style>
+  :root {
+    --bg: #fffdfb;
+    --surface: #f9f6f4;
+    --ink: #2a2338;
+    --muted: #6a6078;
+    --navy: #5b2a86;
+    --accent: #8b3fae;
+    --accent-soft: #f4ecfb;
+    --line: #e6dcf0;
+    --brand: linear-gradient(135deg, #441a6b 0%, #6a2a8f 100%);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.7 "Georgia", "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased; }
+  body, p, li { text-align: justify; }
+
+  /* header */
+  .hero { background: var(--brand); color: #fff; padding: 3.2rem 1.25rem 2.6rem; }
+  .hero-inner { max-width: 900px; margin: 0 auto; }
+  .hero .course { display:inline-block; font: 600 12px/1 system-ui, sans-serif; letter-spacing:.08em;
+    text-transform:uppercase; background: rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+    padding:.35rem .75rem; border-radius:999px; margin-bottom:1rem; }
+  .hero h1 { margin: .2rem 0 .7rem; font-size: clamp(1.9rem, 4.2vw, 2.5rem); line-height:1.15; text-align:left; }
+  .hero .lead { color: rgba(255,255,255,.92); font-size: 1.1rem; text-align:justify; }
+
+  main { max-width: 880px; margin: 0 auto; padding: 0 1.4rem 3rem; }
+
+  /* toc */
+  .toc { border:1px solid var(--line); border-radius: 12px; background: var(--surface);
+    padding: 1.2rem 1.5rem; margin: 2rem 0; }
+  .toc h2 { margin: 0 0 .8rem; font-size: 1.2rem; color: var(--navy); }
+  .toc ol { margin: 0; padding-left: 1.3rem; }
+  .toc li { margin: .35rem 0; }
+  .toc a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  .toc a:hover { color: var(--navy); }
+
+  section { margin: 2.4rem 0; padding-top: .4rem; }
+  h2 { border-bottom: 2px solid var(--line); padding-bottom: .4rem; color: var(--navy); font-size: 1.5rem; }
+  h3 { color: var(--accent); font-size: 1.15rem; margin: 1.4rem 0 .4rem; }
+  p { margin: .6rem 0; }
+  ul, ol { margin: .5rem 0; padding-left: 1.4rem; }
+  li { margin: .3rem 0; }
+  strong { color: var(--navy); }
+
+  .term { border-bottom: 1px dotted var(--accent); cursor: help; color: var(--accent); }
+  .term:hover { background: var(--accent-soft); }
+  .note { background: var(--accent-soft); border:1px solid #dfc9ec; border-radius: 10px;
+    padding:.8rem 1rem; margin: 1rem 0; font-size: .95rem; }
+  .example { background: var(--surface); border:1px solid var(--line); border-radius: 10px;
+    padding:.8rem 1rem; margin: 1rem 0; font-size: .96rem; }
+  .def { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding:.7rem 1rem; margin: .9rem 0; }
+  .def b { color: var(--navy); }
+
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 1rem 0; }
+  th, td { border:1px solid var(--line); padding: .5rem .65rem; text-align: center; vertical-align: middle; }
+  th { background: var(--accent-soft); color: var(--navy); font-weight: 700; }
+  tr:last-child td { border-bottom: 1px solid var(--line); }
+  td.lbl { text-align: left; font-weight: 600; }
+  td.hl { background: #efe0f7; }
+
+  .sol { border:1px solid #dfc9ec; border-left: 4px solid var(--accent); background: #f8f1fc;
+    border-radius: 0 10px 10px 0; padding:.9rem 1.1rem; margin: 1rem 0; }
+  .sol label { font-weight: 700; color: var(--navy); display: block; margin-bottom:.4rem; }
+  .sol .res { display: block; margin-top:.6rem; font-weight: 700; color: var(--navy); }
+
+  .sources { margin-top: 3rem; }
+  .sources ul { list-style: none; padding: 0; }
+  .sources li { margin: .5rem 0; padding-left: 1.4rem; position: relative; }
+  .sources li::before { content: "→"; position:absolute; left:0; color: var(--accent); }
+  .sources a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); word-break: break-word; }
+  .sources a:hover { color: var(--navy); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 2.5rem; padding-top: 1rem;
+    color: var(--muted); font-size: .85rem; }
+
+  /* tooltip */
+  .tip-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(15,32,54,.35);
+    display: none; align-items: center; justify-content: center; padding: 1.2rem; }
+  .tip-overlay.show { display: flex; }
+  .tip-box { background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    max-width: 520px; width: 100%; box-shadow: 0 20px 50px rgba(0,20,40,.3); padding: 1.2rem 1.4rem; }
+  .tip-box .tip-title { font-family: system-ui, sans-serif; font-weight: 700; color: var(--navy); margin: 0 0 .4rem; }
+  .tip-box p { margin: .2rem 0; }
+  .tip-box button { cursor: pointer; margin-top: .8rem; background: var(--accent); color: #fff; border: none;
+    font: 600 .9rem/1 system-ui, sans-serif; border-radius: 8px; padding: .5rem 1rem; }
+
+  @media (max-width: 600px){ .hero { padding: 2rem 1rem 1.6rem; } main { padding: 0 1rem 2rem; } }
+  @media print { body { color:#111; } .hero { background:#fff; color:#111; border-bottom:2px solid #000; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="course">ПУП.02 · Информатика (группа РПО)</span>
+      <h1>Алгебра логики: построение таблиц истинности</h1>
+      <p class="lead">Лекция посвящена основам алгебры логики: понятию высказывания, логическим операциям и порядку их выполнения, а также построению таблиц истинности логических формул. Материал изложен в академическом стиле с примерами, источник — учебно-методическое пособие Н. Ю. Прокопенко «Математическая логика и булевы функции».</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <nav class="toc">
+    <h2>Оглавление</h2>
+    <ol>
+      <li><a href="#vyskazyvanie">Понятие высказывания</a></li>
+      <li><a href="#operacii">Логические операции</a></li>
+      <li><a href="#poryadok">Порядок выполнения логических операций</a></li>
+      <li><a href="#formula">Формулы алгебры логики и таблица истинности</a></li>
+      <li><a href="#primery">Разбор примеров построения таблиц истинности</a></li>
+      <li><a href="#primenenie">Практическое применение в профессиональной деятельности</a></li>
+      <li><a href="#dz">Домашнее задание</a></li>
+      <li><a href="#istochniki">Рекомендуемые источники</a></li>
+    </ol>
+  </nav>
+
+  <section id="vyskazyvanie">
+    <h2>1. Понятие высказывания</h2>
+    <p>Основным объектом алгебры логики является высказывание. <span class="term" data-tip-name="Высказывание" data-tip="Повествовательное утвердительное предложение, о котором имеет смысл говорить, истинно оно или ложно в данных условиях места и времени">Высказыванием</span> называют повествовательное утвердительное предложение, о котором имеет смысл говорить, истинно оно или ложно в данных условиях места и времени.</p>
+    <p>Не всякое предложение является высказыванием. Вопросительные, побудительные и предложения, содержащие переменную без указания её области определения, высказываниями не считаются.</p>
+    <div class="example"><strong>Пример.</strong> Высказывания: «Параллелограмм имеет четыре вершины» — истинное; «Париж — столица Англии» — ложное; «47 &lt; 16» — ложное. Не являются высказываниями: «Который час?», «Да здравствуют спортсмены!», «х = 20».</div>
+    <p>Высказывание, представляющее собой одно утверждение, называют <span class="term" data-tip="Простое высказывание — одно утверждение, которое не содержит логических связок">простым, или элементарным</span>. Его обозначают малыми буквами латинского алфавита: a, b, c, p, q, r. Логическое значение высказывания обозначают цифрами 1 (истина) и 0 (ложь). Высказывания, образованные из элементарных с помощью логических связок, называют сложными, или составными.</p>
+    <h3>Задания для закрепления понятия высказывания</h3>
+    <div class="example">
+      <strong>Задание 1.</strong> Определите истинностное значение следующих высказываний (истина — 1 либо ложь — 0):
+      <ol>
+        <li>15 кратно 3, но не кратно 4;</li>
+        <li>каждое действительное число x удовлетворяет неравенству x² ≥ 0;</li>
+        <li>число 6 делится на 2 и на 3;</li>
+        <li>Пушкин — автор поэмы «Медный всадник»;</li>
+        <li>π = 3,14;</li>
+        <li>47 &lt; 16.</li>
+      </ol>
+    </div>
+    <div class="sol">
+      <label>Решение (ответ)</label>
+      <ol>
+        <li>15 кратно 3; 15 на 4 не делится. Утверждение истинно — 1.</li>
+        <li>Квадрат любого действительного числа неотрицателен. Утверждение истинно — 1.</li>
+        <li>6 делится и на 2, и на 3. Утверждение истинно — 1.</li>
+        <li>Пушкин действительно автор «Медного всадника». Утверждение истинно — 1.</li>
+        <li>π ≈ 3,14159…, поэтому равенство π = 3,14 неверно. Утверждение ложно — 0.</li>
+        <li>47 больше 16. Утверждение ложно — 0.</li>
+      </ol>
+    </div>
+    <div class="example">
+      <strong>Задание 2.</strong> Установите, являются ли приведённые предложения высказываниями. Для высказываний определите их истинностное значение:
+      <ol>
+        <li>река Волга впадает в Каспийское море;</li>
+        <li>пейте томатный сок;</li>
+        <li>существует человек, который моложе своего брата;</li>
+        <li>который час?</li>
+      </ol>
+    </div>
+    <div class="sol">
+      <label>Решение (ответ)</label>
+      <ol>
+        <li>Высказывание, истинное — 1.</li>
+        <li>Побудительное предложение, высказыванием не является.</li>
+        <li>Высказывание (младший брат младше старшего), истинное — 1.</li>
+        <li>Вопросительное предложение, высказыванием не является.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="operacii">
+    <h2>2. Логические операции</h2>
+    <p>Для построения сложных высказываний используются пять основных логических операций: отрицание, конъюнкция, дизъюнкция, импликация и эквиваленция.</p>
+    <ul>
+      <li><strong>Отрицание</strong> высказывания a — это высказывание ¬a, которое истинно, если a ложно, и ложно, если a истинно. Читается «не a».</li>
+      <li><strong>Конъюнкция</strong> высказываний a и b — высказывание a∧b, истинное тогда и только тогда, когда оба высказывания истинны. Читается «a и b».</li>
+      <li><strong>Дизъюнкция</strong> высказываний a и b — высказывание a∨b, истинное, если хотя бы одно из высказываний истинно. Читается «a или b».</li>
+      <li><strong>Импликация</strong> высказываний a и b — высказывание a→b, ложное, если a истинно, а b ложно, и истинное во всех остальных случаях. Читается «если a, то b».</li>
+      <li><strong>Эквиваленция</strong> высказываний a и b — высказывание a↔b, истинное, если оба высказывания одновременно истинны или одновременно ложны. Читается «a тогда и только тогда, когда b».</li>
+    </ul>
+    <p>Результаты применения основных логических операций сводятся в таблицу истинности — таблицу, в которой перечислены истинностные значения выражения для всех возможных наборов значений переменных.</p>
+    <h3>Таблица истинности основных логических операций</h3>
+    <table>
+      <thead><tr><th>p</th><th>q</th><th>¬p</th><th>p∧q</th><th>p∨q</th><th>p→q</th><th>p↔q</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>0</td><td class="hl">1</td><td>0</td><td>0</td><td class="hl">1</td><td class="hl">1</td></tr>
+        <tr><td>0</td><td>1</td><td class="hl">1</td><td>0</td><td class="hl">1</td><td class="hl">1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td><td class="hl">1</td><td>0</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td class="hl">1</td><td class="hl">1</td><td class="hl">1</td><td class="hl">1</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><strong>Памятка.</strong> Конъюнкция «работает» только при двух истинах; дизъюнкция ложна лишь при двух ложях; импликация ложна только в случае «из истины следует ложь»; эквиваленция истинна при одинаковых значениях переменных.</div>
+  </section>
+
+  <section id="poryadok">
+    <h2>3. Порядок выполнения логических операций</h2>
+    <p>Порядок выполнения операций в формулах указывается скобками. Если скобки опущены, операции выполняются в следующем порядке (по убыванию приоритета):</p>
+    <table>
+      <thead><tr><th>Приоритет</th><th>Операция</th><th>Обозначение</th></tr></thead>
+      <tbody>
+        <tr><td>1 (наивысший)</td><td>Отрицание</td><td>¬</td></tr>
+        <tr><td>2</td><td>Конъюнкция</td><td>∧</td></tr>
+        <tr><td>3</td><td>Дизъюнкция</td><td>∨</td></tr>
+        <tr><td>4</td><td>Импликация</td><td>→</td></tr>
+        <tr><td>5 (низший)</td><td>Эквиваленция</td><td>↔</td></tr>
+      </tbody>
+    </table>
+    <div class="def"><b>Порядок действий:</b> ¬ , ∧ , ∨ , → , ↔. Отрицание выполняется первым, затем конъюнкция, дизъюнкция, импликация и, наконец, эквиваленция. Если над формулой стоит знак отрицания, скобки можно опускать, так как отрицание имеет наивысший приоритет.</div>
+    <p>Конъюнкция выполняется раньше всех остальных операций (кроме отрицания), дизъюнкция — раньше импликации и эквиваленции.</p>
+  </section>
+
+  <section id="formula">
+    <h2>4. Формулы алгебры логики и таблица истинности</h2>
+    <div class="def"><b>Формула алгебры логики</b> — всякое сложное высказывание, которое может быть получено из элементарных высказываний применением операций отрицания, конъюнкции, дизъюнкции, импликации и эквиваленции.</div>
+    <p>Логическое значение формулы при всех сочетаниях значений входящих в неё переменных описывается <span class="term" data-tip="Таблица истинности — таблица, содержащая 2 в степени n строк, где n — число переменных, и истинностные значения выражения на каждом наборе">таблицей истинности</span>. Если формула содержит n переменных, таблица истинности содержит 2<sup>n</sup> строк: по одной на каждое возможное сочетание значений переменных.</p>
+    <ul>
+      <li>Для одной переменной — 2 строки;</li>
+      <li>для двух переменных — 4 строки;</li>
+      <li>для трёх переменных — 8 строк.</li>
+    </ul>
+    <p><strong>Алгоритм построения таблицы истинности:</strong></p>
+    <ol>
+      <li>Перечислить переменные, входящие в формулу, и определить число строк (2<sup>n</sup>).</li>
+      <li>Заполнить столбцы значений переменных всеми возможными двоичными наборами.</li>
+      <li>Вычислить по порядку приоритета значения промежуточных подвыражений.</li>
+      <li>Определить значения всей формулы в крайнем столбце.</li>
+    </ol>
+  </section>
+
+  <section id="primery">
+    <h2>5. Разбор примеров построения таблиц истинности</h2>
+
+    <h3>Пример 1. Таблица истинности формулы с импликацией</h3>
+    <div class="example">Построить таблицу истинности формулы A = p → (q ∨ ¬p).</div>
+    <div class="sol">
+      <label>Решение</label>
+      <p>Формула содержит две переменные p и q, следовательно, таблица будет содержать 4 строки. Вычислим промежуточное подвыражение ¬p, затем q ∨ ¬p, и, наконец, импликацию p → (q ∨ ¬p).</p>
+      <table>
+        <thead><tr><th>p</th><th>q</th><th>¬p</th><th>q ∨ ¬p</th><th>p → (q ∨ ¬p)</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>0</td><td>1</td><td>1</td><td class="hl">1</td></tr>
+          <tr><td>0</td><td>1</td><td>1</td><td>1</td><td class="hl">1</td></tr>
+          <tr><td>1</td><td>0</td><td>0</td><td>0</td><td class="hl">0</td></tr>
+          <tr><td>1</td><td>1</td><td>0</td><td>1</td><td class="hl">1</td></tr>
+        </tbody>
+      </table>
+      <span class="res">Ответ: A = p → (q ∨ ¬p) принимает значение 0 только на наборе (1; 0).</span>
+    </div>
+
+    <h3>Пример 2. Таблица истинности формулы с тремя переменными</h3>
+    <div class="example">Построить таблицу истинности формулы A = (¬q ↔ r) ∨ (r → p ∧ q).</div>
+    <div class="sol">
+      <label>Решение</label>
+      <p>Формула содержит три переменные p, q, r, поэтому таблица содержит 8 строк. Определяем порядок действий: сначала отрицание ¬q, затем конъюнкция p ∧ q, затем эквиваленция ¬q ↔ r и импликация r → (p ∧ q), и наконец дизъюнкция результатов.</p>
+      <div class="scroll" style="overflow-x:auto">
+        <table>
+          <thead><tr><th>p</th><th>q</th><th>r</th><th>¬q</th><th>¬q ↔ r</th><th>p ∧ q</th><th>r → (p ∧ q)</th><th>A</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td class="hl">1</td></tr>
+            <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td class="hl">1</td></tr>
+            <tr><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td class="hl">1</td></tr>
+            <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td class="hl">1</td></tr>
+            <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="hl">0</td></tr>
+            <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td class="hl">1</td></tr>
+            <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td class="hl">1</td></tr>
+            <tr><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td><td class="hl">1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <span class="res">Ответ: формула A ложна только при наборе (0; 1; 1), во всех остальных семи случаях принимает значение истина.</span>
+    </div>
+
+    <h3>Пример 3. Словесная формулировка формулы</h3>
+    <div class="example">Пусть a — «Студент Иванов изучает английский язык», b — «Студент Иванов успевает по математической логике». Дать словесную формулировку высказываний a ∧ ¬b, a → b, ¬a ↔ ¬b.</div>
+    <div class="sol">
+      <label>Решение</label>
+      <p>a ∧ ¬b: «Студент Иванов изучает английский язык и не успевает по математической логике».</p>
+      <p>a → b: «Если студент Иванов изучает английский язык, то он успевает по математической логике».</p>
+      <p>¬a ↔ ¬b: «Студент Иванов не успевает по математической логике тогда и только тогда, когда он не изучает английский язык».</p>
+    </div>
+  </section>
+
+  <section id="primenenie">
+    <h2>6. Практическое применение в профессиональной деятельности</h2>
+    <p>Алгебра логики лежит в основе работы любых цифровых устройств и программ. Понимание таблиц истинности необходимо при разработке программного обеспечения, проектировании цифровых схем и построении условий в программах и базах данных.</p>
+    <div class="example"><strong>Программирование условий.</strong> В условных операторах программ (например, <em>if</em>) условия объединяются логическими операциями И, ИЛИ, НЕ. Логическое «И» соответствует конъюнкции, «ИЛИ» — дизъюнкции. Таблица истинности показывает, при каких сочетаниях входных условий условие ветвления сработает.</div>
+    <div class="example"><strong>Поисковые запросы.</strong> В поисковых системах и базах данных операторы AND, OR, NOT позволяют уточнять запросы. Например, запрос «принтер И сканер» вернёт документы, в которых встречаются оба слова, — это и есть операция конъюнкции.</div>
+    <div class="example"><strong>Проектирование схем.</strong> Цифровая электроника построена на логических элементах И, ИЛИ, НЕ, соответствующих базовым операциям алгебры логики. Таблицы истинности используются для проверки корректности работы логических схем и электронных устройств.</div>
+    <div class="example"><strong>Базы данных.</strong> В языке SQL при выборке данных используются логические условия в конструкции WHERE, объединённые операторами AND, OR, NOT. Знание таблиц истинности помогает точно составить запрос и предвидеть его результат.</div>
+    <div class="example"><strong>Решение логических задач.</strong> Условия многих логических задач формализуются в виде формул алгебры логики; построение таблиц истинности позволяет определить, какие высказывания следуют из данных посылок.</div>
+    <div class="note"><strong>Вывод:</strong> навык построения таблиц истинности востребован в программировании, проектировании приложений, администрировании баз данных и разработке информационных систем — то есть во всех направлениях подготовки специалистов ИТ-профиля.</div>
+  </section>
+
+  <section id="dz">
+    <h2>7. Домашнее задание</h2>
+    <p>Изучить понятие высказывания, логические операции, порядок их выполнения и алгоритм построения таблиц истинности. Для закрепления материала построить четыре таблицы истинности разной сложности.</p>
+    <div class="example">
+      <strong>Задание 1 (две переменные).</strong> Построить таблицу истинности формулы A = p ∧ (q → ¬p).
+    </div>
+    <div class="example">
+      <strong>Задание 2 (две переменные).</strong> Построить таблицу истинности формулы B = (p → q) ∨ (¬p ∧ q).
+    </div>
+    <div class="example">
+      <strong>Задание 3 (три переменные).</strong> Построить таблицу истинности формулы C = (p ∧ q) → (r ∨ ¬p).
+    </div>
+    <div class="example">
+      <strong>Задание 4 (три переменные, повышенной сложности).</strong> Построить таблицу истинности формулы D = (¬p ∨ r) ↔ (q → p).
+    </div>
+    <div class="example">
+      <strong>Задание 5 (определение истинности высказываний).</strong> Определите истинностное значение следующих шести высказываний (истина — 1 либо ложь — 0):
+      <ol>
+        <li>23 &lt; 5;</li>
+        <li>для всех действительных чисел x и y верно равенство x + y = y + x;</li>
+        <li>число 14 кратно 7 и не кратно 3;</li>
+        <li>Париж — столица Франции;</li>
+        <li>каждый человек имеет брата;</li>
+        <li>число 8 является простым.</li>
+      </ol>
+    </div>
+    <p><strong>Требования к оформлению.</strong> Каждую таблицу оформить по следующей схеме: выписать формулу, определить число переменных и строк в таблице, заполнить столбцы значений переменных, затем столбцы промежуточных подвыражений и, наконец, столбец всей формулы. В ответе указать набор или наборы значений, на которых формула принимает значение истина либо ложь. В задании 5 для каждого примера записать краткое пояснение выбора значения.</p>
+    <div class="note"><strong>Рекомендация.</strong> Перед выполнением заданий внимательно разберите примеры 1 и 2 из раздела 5: они демонстрируют построение таблиц для двух и трёх переменных соответственно.</div>
+  </section>
+
+  <section id="istochniki" class="sources">
+    <h2>8. Рекомендуемые источники</h2>
+    <p><strong>Учебная литература:</strong></p>
+    <ul>
+      <li>Прокопенко Н. Ю. «Математическая логика и булевы функции» : учебно-методическое пособие / Н. Ю. Прокопенко; Нижегор. гос. архит.-строит. ун-т. — Нижний Новгород : ННГАСУ, 2021. — 107 с. (раздел 1, «Логика высказываний»).</li>
+      <li>Игошин В. И. «Математическая логика и теория алгоритмов» : учебное пособие / В. И. Игошин. — Москва : Академия, 2008. — 448 с.</li>
+      <li>Игошин В. И. «Сборник задач по математической логике и теории алгоритмов» : учебное пособие / В. И. Игошин. — Москва : КУРС: ИНФРА-М, 2017. — 392 с.</li>
+      <li>Лавров И. А., Максимова Л. Л. «Задачи по теории множеств, математической логике и теории алгоритмов» : учебник / И. А. Лавров, Л. Л. Максимова. — 5-е изд., испр. — Москва : ФИЗМАТЛИТ, 2002. — 256 с.</li>
+    </ul>
+    <p><strong>Интернет-источники по построению таблиц истинности:</strong></p>
+    <ul>
+      <li>ЯКласс — <a href="https://www.yaklass.ru/p/informatics/8-klass/teoreticheskie-osnovy-informatiki-7279393/elementy-algebry-logiki-6617745/" target="_blank" rel="noopener">«Элементы алгебры логики»: теория и тренировочные задания</a></li>
+      <li>Фоксфорд. Справочник — <a href="https://foxford.ru/wiki/informatika/tablitsy-istinnosti" target="_blank" rel="noopener">«Таблицы истинности»</a></li>
+      <li>100балльный учебник — <a href="https://100points.ru/wiki/informatics/tabliczy-istinnosti-logicheskih-funkczii/" target="_blank" rel="noopener">«Таблицы истинности логических функций»</a></li>
+      <li>ЕГЭ-Студия — <a href="https://ege-study.ru/ru/ege/materialy/informatika/polnyi-kurs-podgotovki-k-ege-po-informatike/zadanie-2/" target="_blank" rel="noopener">«Задание 2. Построение таблиц истинности логических выражений»</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    ПУП.02 «Информатика» (группа РПО) · Тема: алгебра логики, построение таблиц истинности. Материал для самостоятельного изучения, подготовлен на основе пособия Н. Ю. Прокопенко «Математическая логика и булевы функции» (ННГАСУ, 2021). Сформировано 30.09.2026.
+  </footer>
+
+</main>
+
+<!-- Модалка подсказки термина -->
+<div class="tip-overlay" id="tipOverlay">
+  <div class="tip-box" role="dialog" aria-modal="true">
+    <p class="tip-title" id="tipTitle">Пояснение</p>
+    <p id="tipBody"></p>
+    <button id="tipClose">Закрыть</button>
+  </div>
+</div>
+
+<script>
+  var tipOverlay = document.getElementById('tipOverlay');
+  var tipTitle = document.getElementById('tipTitle');
+  var tipBody = document.getElementById('tipBody');
+  document.querySelectorAll('.term').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault();
+      tipTitle.textContent = el.getAttribute('data-tip-name') || 'Пояснение';
+      tipBody.textContent = el.getAttribute('data-tip');
+      tipOverlay.classList.add('show');
+    });
+  });
+  document.getElementById('tipClose').addEventListener('click', function(){ tipOverlay.classList.remove('show'); });
+  tipOverlay.addEventListener('click', function(e){ if (e.target === tipOverlay) tipOverlay.classList.remove('show'); });
+</script>
+
+</body>
+</html>
